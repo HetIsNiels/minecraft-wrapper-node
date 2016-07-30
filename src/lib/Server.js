@@ -5,6 +5,7 @@ const https = require('https');
 const child_process = require('child_process');
 const readline = require('readline');
 const EventEmitter = require('events');
+const Buffer = require('buffer');
 
 class Server extends EventEmitter {
 	constructor(version, name, options) {
@@ -26,6 +27,8 @@ class Server extends EventEmitter {
 		this.child = null;
 		this.ticker = null;
 		this.ticks = 0;
+		this.buffer = [];
+		this.players = [];
 
 		this.loadServerPlugin();
 	}
@@ -94,6 +97,11 @@ class Server extends EventEmitter {
 
 			this.rl = readline.createInterface(this.child.stdout, this.child.stdin);
 			this.rl.on('line', (line) => {
+				this.buffer.push(line);
+
+				if (this.buffer.length > 100)
+					this.buffer.shift();
+
 				this.spy(line);
 			});
 
@@ -134,6 +142,7 @@ class Server extends EventEmitter {
 			coordinates.y = coordinates[1];
 			coordinates.z = coordinates[2];
 
+			this.players.push(username);
 			this.emit('player.join', username, coordinates, address, entityId);
 		}
 
@@ -142,6 +151,10 @@ class Server extends EventEmitter {
 		if (match) {
 			let username = match[1];
 			let reason = match[2];
+
+			let index = this.players.indexOf(username);
+			if(index > -1)
+				this.players.splice(index, 1);
 
 			this.emit('player.leave', username, reason);
 		}
