@@ -1,9 +1,9 @@
 {
 	"name": "minecraft-wrapper-node",
 	"version": "0.0.1-DEV",
-	"main": "test.js",
+	"main": "src/main.js",
 	"scripts": {
-		"test": "test.js"
+		"start": "src/main.js"
 	},
 	"repository": {
 		"type": "git",
